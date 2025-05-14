@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Custom run script for Node.js S2I application.
+# This script demonstrates starting the application using \`npm start\`.
+
+echo "--- Custom S2I run script started ---"
+
+# Accessing runtime environment variable (will be passed via DeploymentConfig)
+echo "Runtime Environment Variable 'RUNTIME_ENV_MSG': \$RUNTIME_ENV_MSG"
+
+npm start
+
+echo "--- Custom S2I run script finished ---"

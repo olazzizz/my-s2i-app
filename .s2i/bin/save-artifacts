@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# Custom save-artifacts script for Node.js S2I application.
+# This script defines which artifacts should be saved for incremental builds.
+
+echo "--- Custom S2I save-artifacts script started ---"
+
+# Save node_modules directory
+if [ -d node_modules ]; then
+  echo "Saving node_modules for incremental build..."
+  cp -a node_modules /tmp/s2i-cached-artifacts/
+else
+  echo "node_modules not found, skipping artifact saving."
+fi
+
+echo "--- Custom S2i save-artifacts script finished ---"

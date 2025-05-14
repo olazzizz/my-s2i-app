@@ -1,0 +1,16 @@
+{
+  "name": "my-s2i-app",
+  "version": "1.0.0",
+  "description": "A simple Node.js app for S2I advanced features lab.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
+}

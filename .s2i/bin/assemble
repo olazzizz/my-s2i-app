@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# Custom assemble script for Node.js S2I application.
+# This script demonstrates:
+# 1. Using build environment variables.
+# 2. Implementing incremental builds (via 'save-artifacts').
+# 3. Custom build logic.
+
+echo "--- Custom S2I assemble script started ---"
+
+# Accessing a build environment variable
+echo "Build Environment Variable 'BUILD_ENV_MSG': \$BUILD_ENV_MSG"
+
+# Check for incremental build artifacts
+if [ -d /tmp/s2i-cached-artifacts/node_modules ]; then
+  echo "Incremental build detected. Copying cached node_modules..."
+  cp -a /tmp/s2i-cached-artifacts/node_modules .
+  npm ci --prefer-offline || true # Use npm ci for faster, deterministic installs from lockfile
+else
+  echo "No cached artifacts found. Performing a clean install of node_modules..."
+  npm install
+fi
+
+# Copy source code to the application directory
+echo "Copying application source code..."
+cp -a /tmp/src/. .
+
+echo "--- Custom S2I assemble script finished ---"
