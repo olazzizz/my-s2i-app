@@ -3,26 +3,43 @@
 # Custom assemble script for Node.js S2I application.
 # This script demonstrates:
 # 1. Using build environment variables.
-# 2. Implementing incremental builds (via 'save-artifacts').
-# 3. Custom build logic.
+# 2. Implementing incremental builds.
+# 3. Robust error handling and logging.
+
+set -o errexit  # Exit immediately if a command exits with a non-zero status
+set -o pipefail # Ensure that a failure in a pipeline is detected.
+
+LOG_FILE="/tmp/s2i-assemble.log"
+
+exec > >(tee -a "$LOG_FILE") 2> >(tee -a "$LOG_FILE" >&2) # Redirect all output to log
 
 echo "--- Custom S2I assemble script started ---"
+echo "Log file: $LOG_FILE"
 
 # Accessing a build environment variable
-echo "Build Environment Variable 'BUILD_ENV_MSG': \$BUILD_ENV_MSG"
+echo "Build Environment Variable 'BUILD_ENV_MSG':" $BUILD_ENV_MSG
+
+# Check for source code directory
+if [ ! -d "/tmp/src" ]; then
+  echo "Error: Source code directory /tmp/src not found!"
+  exit 1
+fi
 
 # Check for incremental build artifacts
-if [ -d /tmp/s2i-cached-artifacts/node_modules ]; then
+if [ -d "/tmp/s2i-cached-artifacts/node_modules" ]; then
   echo "Incremental build detected. Copying cached node_modules..."
-  cp -a /tmp/s2i-cached-artifacts/node_modules .
-  npm ci --prefer-offline || true # Use npm ci for faster, deterministic installs from lockfile
+  cp -a "/tmp/s2i-cached-artifacts/node_modules" .
+  echo "Installing dependencies using npm ci..."
+  npm ci --prefer-offline
 else
   echo "No cached artifacts found. Performing a clean install of node_modules..."
-  npm install
+  echo "Installing dependencies using npm ci..."
+  npm ci --prefer-offline || npm install # Fallback to npm install if no lockfile
 fi
 
 # Copy source code to the application directory
 echo "Copying application source code..."
-cp -a /tmp/src/. .
+cp -a "/tmp/src/." .
 
 echo "--- Custom S2I assemble script finished ---"
+
